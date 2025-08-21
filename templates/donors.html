@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+
+    <!-- Add Donor Form -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm animate__animated animate__fadeInLeft">
+        <div class="card-body">
+          <h6 class="card-title mb-3">➕ Add Donor</h6>
+          <form method="post" action="{{ url_for('donors') }}">
+            <div class="mb-2">
+              <label class="form-label">Name</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Blood Group</label>
+              <select class="form-select" name="blood_group" required>
+                <option value="" disabled selected>Select group</option>
+                {% for g in groups %}
+                  <option value="{{ g }}">{{ g }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Last Donation (optional)</label>
+              <input type="date" name="last_donation" class="form-control">
+            </div>
+            <button class="btn btn-danger w-100 animate__animated animate__pulse animate__infinite">Add Donor</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donor List -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-4 animate__animated animate__fadeInUp">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <h6 class="card-title mb-0">🧾 Donor List</h6>
+            <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('export_donors') }}">Export CSV</a>
+          </div>
+
+          <!-- Search + Filter -->
+          <form method="get" class="row g-2 mt-3 animate__animated animate__fadeInRight">
+            <div class="col-md-5">
+              <input type="text" name="search" class="form-control" placeholder="Search by name" value="{{ search }}">
+            </div>
+            <div class="col-md-4">
+              <select name="group" class="form-select">
+                <option value="">All Groups</option>
+                {% for g in groups %}
+                  <option value="{{ g }}" {% if group==g %}selected{% endif %}>{{ g }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-danger w-100">Filter</button>
+            </div>
+          </form>
+
+          <!-- Donor Table -->
+          <div class="table-responsive mt-3">
+            <table class="table table-sm table-striped align-middle animate__animated animate__fadeIn">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Group</th>
+                  <th>Last Donation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in donors.items %}
+                  <tr class="animate__animated animate__fadeInUp">
+                    <td>{{ loop.index + (donors.page - 1) * donors.per_page }}</td>
+                    <td>{{ d.name }}</td>
+                    <td>{{ d.blood_group }}</td>
+                    <td>{{ d.last_donation or "-" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav class="animate__animated animate__fadeInUp">
+            <ul class="pagination">
+              {% if donors.has_prev %}
+                <li class="page-item"><a class="page-link" href="?search={{ search }}&group={{ group }}&page={{ donors.prev_num }}">Previous</a></li>
+              {% endif %}
+
+              {% for p in donors.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if p %}
+                  <li class="page-item {% if donors.page==p %}active{% endif %}">
+                    <a class="page-link" href="?search={{ search }}&group={{ group }}&page={{ p }}">{{ p }}</a>
+                  </li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+              {% endfor %}
+
+              {% if donors.has_next %}
+                <li class="page-item"><a class="page-link" href="?search={{ search }}&group={{ group }}&page={{ donors.next_num }}">Next</a></li>
+              {% endif %}
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Donation Log Section -->
+      <div class="card shadow-sm animate__animated animate__fadeInUp">
+        <div class="card-body">
+          <h6 class="card-title mb-3">📌 Log Donation</h6>
+          <form method="post" action="{{ url_for('donate') }}">
+            <div class="mb-2">
+              <label class="form-label">Select Donor</label>
+              <select name="donor_id" class="form-select" required>
+                <option value="" disabled selected>Choose donor</option>
+                {% for d in all_donors %}
+                  <option value="{{ d.id }}">{{ d.name }} ({{ d.blood_group }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Date</label>
+              <input type="date" name="date" class="form-control" value="{{ today }}">
+            </div>
+            <button class="btn btn-danger">Log Donation</button>
+          </form>
+
+          <!-- Donation Logs -->
+          <div class="table-responsive mt-4 animate__animated animate__fadeIn">
+            <table class="table table-sm table-striped align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Donor</th>
+                  <th>Group</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in logs %}
+                  <tr class="animate__animated animate__fadeInUp">
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.donor.name }}</td>
+                    <td>{{ log.donor.blood_group }}</td>
+                    <td>{{ log.date }}</td>
+                  </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="4" class="text-center text-muted">No donation records yet</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

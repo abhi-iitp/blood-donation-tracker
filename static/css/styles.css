@@ -1,0 +1,28 @@
+body { background: #fff7f8; }
+.navbar { box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.card { border: 0; }
+.card-title { font-weight: 600; }
+.table thead th { font-weight: 600; }
+
+/* Fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-animated tbody tr {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.table-animated tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.table-animated tbody tr:nth-child(2) { animation-delay: 0.2s; }
+.table-animated tbody tr:nth-child(3) { animation-delay: 0.3s; }
+.table-animated tbody tr:nth-child(4) { animation-delay: 0.4s; }
+.table-animated tbody tr:nth-child(5) { animation-delay: 0.5s; }
